@@ -1,0 +1,41 @@
+version: "3"
+
+services:
+  php:
+    build:
+      context: ./php
+      dockerfile: Dockerfile
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./code:/data/application.local
+      - ./php/php.ini:/usr/local/etc/php/php.ini
+    networks:
+      - appnet
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./code:/data/application.local
+    networks:
+      - appnet
+  database:
+    build:
+      context: ./mysql
+      dockerfile: Dockerfile
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - ./dbdata:/var/lib/mysql
+      - ./mysql/my.cnf:/etc/mysql/my.cnf
+    networks:
+      - appnet
+
+networks:
+  appnet:
+    driver: bridge
